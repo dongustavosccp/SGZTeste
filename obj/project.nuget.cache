@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "ZOmIcmULn+w=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\gustavo.ibraim\\OneDrive - SmarterApp\\Documentos\\Teste\\SGZTeste\\SGZTeste\\SGZTeste.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\gustavo.ibraim\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.6\\microsoft.aspnetcore.openapi.9.0.6.nupkg.sha512",
+    "C:\\Users\\gustavo.ibraim\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
