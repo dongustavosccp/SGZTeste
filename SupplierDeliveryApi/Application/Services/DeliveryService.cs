@@ -9,10 +9,12 @@ namespace SupplierDeliveryAPI.Application.Services
     public class DeliveryService : IDeliveryService
     {
         private readonly IDeliveryRepository _repository;
+        private readonly IProductRepository _productRepository;
         private readonly INotifier _notifier;
-        public DeliveryService(IDeliveryRepository repository, INotifier notifier)
+        public DeliveryService(IDeliveryRepository repository, IProductRepository productRepository, INotifier notifier)
         {
             _repository = repository;
+            _productRepository = productRepository;
             _notifier = notifier;
         }
 
@@ -45,12 +47,34 @@ namespace SupplierDeliveryAPI.Application.Services
                         ZipCode = delivery.Address.ZipCode,
                         State = delivery.Address.State
                     },
-                    Products = delivery.Products.Select(p => new DeliveryProduct
-                    {
-                        IdProduct = p.IdProduct,
-                        QtProduct = p.QtProduct
-                    }).ToList()
+                    Products = new()
                 };
+
+
+                foreach (DeliveryProductRequest item in delivery.Products)
+                {
+
+                    var product = await _productRepository.GetProductById(item.IdProduct);
+                    if (product == null || product.IdProduct <= 0)
+                    {
+                        _notifier.AddNotification(new ErrorMessage($"Product with ID {item.IdProduct} not found."));
+                        return new();
+                    }
+
+                    if (item.QtProduct <= 0)
+                    {
+                        _notifier.AddNotification(new ErrorMessage($"Quantity for product {item.IdProduct} must be greater than zero."));
+                        return new();
+                    }
+
+                    domainDelivery.Products.Add(new DeliveryProduct
+                    {
+                        IdProduct = item.IdProduct,
+                        QtProduct = item.QtProduct,
+                        Product = product
+                    });
+                }
+
 
                 Delivery savedDelivery = await _repository.AddDelivery(domainDelivery);
 
@@ -60,25 +84,27 @@ namespace SupplierDeliveryAPI.Application.Services
                     return new();
                 }
 
+                var response = await _repository.GetDeliveryById(savedDelivery.IdDelivery);
+
                 return new()
                 {
-                    IdDelivery = savedDelivery.IdDelivery,
-                    DtDelivery = savedDelivery.DtDelivery,
-                    DsStatus = savedDelivery.DsStatus,
+                    IdDelivery = response.IdDelivery,
+                    DtDelivery = response.DtDelivery,
+                    DsStatus = response.DsStatus,
                     Supplier = new()
                     {
-                        IdSupplier = savedDelivery.Supplier.IdSupplier,
-                        NmSupplier = savedDelivery.Supplier.NmSupplier
+                        IdSupplier = response.Supplier.IdSupplier,
+                        NmSupplier = response.Supplier.NmSupplier
                     },
                     Address = new()
                     {
-                        Street = savedDelivery.Address.Street,
-                        Number = savedDelivery.Address.Number,
-                        City = savedDelivery.Address.City,
-                        State = savedDelivery.Address.State,
-                        ZipCode = savedDelivery.Address.ZipCode
+                        Street = response.Address.Street,
+                        Number = response.Address.Number,
+                        City = response.Address.City,
+                        State = response.Address.State,
+                        ZipCode = response.Address.ZipCode
                     },
-                    Products = savedDelivery.Products.Select(p => new DeliveryProductResponse
+                    Products = response.Products.Select(p => new DeliveryProductResponse
                     {
                         IdProduct = p.Product.IdProduct,
                         NmProduct = p.Product.NmProduct,

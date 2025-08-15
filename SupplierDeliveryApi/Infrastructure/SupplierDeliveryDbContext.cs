@@ -53,6 +53,11 @@ namespace SupplierDeliveryAPI.Infrastructure
                 .WithMany(d => d.Products)
                 .HasForeignKey(dp => dp.IdDelivery);
 
+            modelBuilder.Entity<DeliveryProduct>()
+                .HasOne(dp => dp.Product)
+                .WithMany()
+                .HasForeignKey(dp => dp.IdProduct);
+
             modelBuilder.Entity<DeliveryProduct>().Property(dp => dp.QtProduct).IsRequired();
         }
     }

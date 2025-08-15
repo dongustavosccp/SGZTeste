@@ -48,6 +48,16 @@ namespace SupplierDeliveryAPI.Application.Services
                         VlProduct = productResponse.Price
                     };
                 }
+                else
+                {
+                    productEntity = new()
+                    {
+                        IdProduct = product.IdProduct,
+                        NmProduct = product.NmProduct,
+                        Description = product.DsProduct,
+                        Price = product.VlProduct
+                    };
+                }
                 productResponse = await _productRepository.AddProduct(productEntity);
                 return new()
                 {

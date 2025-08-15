@@ -22,7 +22,7 @@ builder.Services.AddScoped<INotifier, Notifier>();
 builder.Services.AddScoped<JwtHelper>();
 builder.Services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? ""));
 
 WebApplication app = builder.Build();
 
